@@ -9,6 +9,7 @@ function App() {
   const touchEnd = useRef(null)
   const [swipingId, setSwipingId] = useState(null)
   const [swipeOffset, setSwipeOffset] = useState(0)
+  const salaryRefs = useRef({})
 
   const addEmployee = () => {
     const newEmployee = {
@@ -80,11 +81,11 @@ function App() {
     }
   }
 
-  const salaryRefs = useRef({})
-
   const handleSalaryFocus = (id) => {
     const input = salaryRefs.current[id]
-    input.select()
+    setTimeout(() => {
+      input.select()
+    }, 0)
   }
 
   return (
