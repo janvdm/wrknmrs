@@ -1,6 +1,5 @@
 import { useState, useRef } from 'react'
-import { Container, Card, Button, Form, InputGroup } from 'react-bootstrap'
-import 'bootstrap/dist/css/bootstrap.min.css'
+import './App.scss'
 import '@fortawesome/fontawesome-free/css/all.min.css'
 
 function App() {
@@ -10,6 +9,7 @@ function App() {
   const [swipingId, setSwipingId] = useState(null)
   const [swipeOffset, setSwipeOffset] = useState(0)
   const salaryRefs = useRef({})
+  const nameRefs = useRef({})
 
   const addEmployee = () => {
     const newEmployee = {
@@ -19,12 +19,21 @@ function App() {
       gender: 'male'
     }
     setEmployees([...employees, newEmployee])
+    setTimeout(() => {
+      nameRefs.current[newEmployee.id]?.focus()
+    }, 0)
   }
 
   const updateEmployee = (id, field, value) => {
     setEmployees(employees.map(emp =>
       emp.id === id ? { ...emp, [field]: value } : emp
     ))
+  }
+
+  const handleSalaryChange = (id, value) => {
+    // Only allow digits and limit to 6 characters
+    const digitsOnly = value.replace(/[^0-9]/g, '').slice(0, 6)
+    updateEmployee(id, 'salary', digitsOnly)
   }
 
   const removeEmployee = (id) => {
@@ -40,32 +49,34 @@ function App() {
   }
 
   const handleTouchStart = (e, id) => {
-    touchStart.current = e.targetTouches[0].clientX
-    setSwipingId(id)
-    setSwipeOffset(0)
-  }
+    touchStart.current = e.targetTouches[0].clientX;
+    setSwipingId(id);
+    setSwipeOffset(0);
+    e.preventDefault(); // Prevent scrolling while swiping
+  };
 
   const handleTouchMove = (e, id) => {
-    if (swipingId !== id) return
+    if (swipingId !== id) return;
 
-    touchEnd.current = e.targetTouches[0].clientX
-    const diff = touchStart.current - touchEnd.current
+    touchEnd.current = e.targetTouches[0].clientX;
+    const diff = touchStart.current - touchEnd.current;
 
     // Limit the swipe offset to 100px
-    const newOffset = Math.min(Math.max(diff, 0), 100)
-    setSwipeOffset(newOffset)
-  }
+    const newOffset = Math.min(Math.max(diff, 0), 100);
+    setSwipeOffset(newOffset);
+    e.preventDefault(); // Prevent scrolling while swiping
+  };
 
   const handleTouchEnd = (id) => {
-    if (swipingId !== id) return
+    if (swipingId !== id) return;
 
     if (swipeOffset > 50) {
-      removeEmployee(id)
+      removeEmployee(id);
     } else {
-      setSwipeOffset(0)
+      setSwipeOffset(0);
     }
-    setSwipingId(null)
-  }
+    setSwipingId(null);
+  };
 
   const handleFocus = (id) => {
     const employee = employees.find(emp => emp.id === id)
@@ -82,79 +93,110 @@ function App() {
   }
 
   const handleSalaryFocus = (id) => {
-    const input = salaryRefs.current[id]
+    const employee = employees.find(emp => emp.id === id);
+    const input = salaryRefs.current[id];
+    // Remove all non-digit characters when focusing
+    const numericValue = employee.salary.replace(/[^0-9]/g, '');
+    updateEmployee(id, 'salary', numericValue);
     setTimeout(() => {
-      input.select()
-    }, 0)
-  }
+      input.select();
+    }, 0);
+  };
+
+  const handleSalaryBlur = (e, id) => {
+    const value = e.target.value.replace(/[^0-9]/g, '');
+    if (value) {
+      const formattedValue = new Intl.NumberFormat('nl-NL', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(value);
+      updateEmployee(id, 'salary', formattedValue);
+    }
+  };
 
   return (
-    <Container className="py-4">
-      <Button
-        variant="primary"
-        className="mb-4"
-        onClick={addEmployee}
-      >
-        <i className="fas fa-plus"></i>
-      </Button>
+    <div className="container py-4">
+      <div className="d-none d-xl-flex justify-content-center mb-4">
+        <button
+          className="btn btn-primary"
+          onClick={addEmployee}
+        >
+          <i className="fas fa-plus me-2"></i>
+          Add Employee
+        </button>
+      </div>
 
       <div className="grid-container">
         {employees.map(employee => (
-          <Card
+          <div
             key={employee.id}
             onTouchStart={(e) => handleTouchStart(e, employee.id)}
             onTouchMove={(e) => handleTouchMove(e, employee.id)}
             onTouchEnd={() => handleTouchEnd(employee.id)}
-            className={`employee-card ${swipingId === employee.id ? 'swiping' : ''}`}
+            className={`card employee-card ${swipingId === employee.id ? 'swiping' : ''}`}
             style={{
               transform: `translateX(${swipingId === employee.id ? -swipeOffset : 0}px)`,
               transition: swipingId === employee.id ? 'none' : 'transform 0.3s ease-out'
             }}
           >
-            <Button
-              variant="danger"
-              className="delete-button p-0 rounded-circle text-white"
+            <button
+              className="btn-delete position-absolute top-0 start-0 translate-middle btn btn-danger rounded-circle p-0 d-none d-md-flex align-items-center justify-content-center opacity-0"
+              style={{ width: '24px', height: '24px' }}
               onClick={() => removeEmployee(employee.id)}
+              tabIndex={-1}
             >
-              <i className="fas fa-times text-white"></i>
-            </Button>
-            <Card.Body>
-              <Form>
-                <div className="d-flex gap-2">
-                  <Form.Control
-                    type="text"
-                    value={employee.name}
-                    onChange={(e) => updateEmployee(employee.id, 'name', e.target.value)}
-                    placeholder="Name"
-                    style={{ width: '45%' }}
-                    onFocus={() => handleFocus(employee.id)}
-                    onBlur={() => handleBlur(employee.id)}
+              <i className="fas fa-times small"></i>
+            </button>
+            <div className="card-body">
+              <div className="d-flex gap-2">
+                <input
+                  type="text"
+                  className="form-control"
+                  value={employee.name}
+                  onChange={(e) => updateEmployee(employee.id, 'name', e.target.value)}
+                  placeholder="Name"
+                  style={{ width: 'calc(45% - 0.5rem)' }}
+                  onFocus={() => handleFocus(employee.id)}
+                  onBlur={() => handleBlur(employee.id)}
+                  ref={(el) => (nameRefs.current[employee.id] = el)}
+                />
+                <div className="input-group" style={{ width: 'calc(45% - 0.5rem)' }}>
+                  <span className="input-group-text">€</span>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    className="form-control"
+                    value={employee.salary}
+                    onChange={(e) => handleSalaryChange(employee.id, e.target.value)}
+                    placeholder="Salary"
+                    ref={(el) => (salaryRefs.current[employee.id] = el)}
+                    onFocus={() => handleSalaryFocus(employee.id)}
+                    onBlur={(e) => handleSalaryBlur(e, employee.id)}
                   />
-                  <InputGroup style={{ width: '45%' }}>
-                    <InputGroup.Text>€</InputGroup.Text>
-                    <Form.Control
-                      type="number"
-                      value={employee.salary}
-                      onChange={(e) => updateEmployee(employee.id, 'salary', e.target.value)}
-                      placeholder="Salary"
-                      ref={(el) => (salaryRefs.current[employee.id] = el)}
-                      onFocus={() => handleSalaryFocus(employee.id)}
-                    />
-                  </InputGroup>
-                  <Button
-                    variant={employee.gender === 'male' ? 'primary' : 'pink'}
-                    onClick={() => toggleGender(employee.id)}
-                    style={{ width: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                  >
-                    <i className={`fas fa-${employee.gender === 'male' ? 'mars' : 'venus'}`}></i>
-                  </Button>
                 </div>
-              </Form>
-            </Card.Body>
-          </Card>
+                <button
+                  className={`btn ${employee.gender === 'male' ? 'btn-primary' : 'btn-pink'}`}
+                  onClick={() => toggleGender(employee.id)}
+                  style={{ width: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  <i className={`fas fa-${employee.gender === 'male' ? 'mars' : 'venus'}`}></i>
+                </button>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
-    </Container>
+
+      <button
+        className="position-fixed bottom-0 end-0 m-4 btn btn-danger rounded-circle p-3 d-flex d-xl-none align-items-center justify-content-center shadow"
+        style={{ width: '56px', height: '56px' }}
+        onClick={addEmployee}
+        aria-label="Add Employee"
+      >
+        <i className="fas fa-plus"></i>
+      </button>
+    </div>
   )
 }
 

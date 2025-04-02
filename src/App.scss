@@ -1,0 +1,85 @@
+@import "bootstrap/scss/bootstrap";
+
+// Grid layout
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 100%;
+  padding: 0 5px;
+  box-sizing: border-box;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 992px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+// Card styles
+.card {
+  transition: transform 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+}
+
+// Employee card and swipe functionality
+.employee-card {
+  position: relative;
+  touch-action: pan-x;
+  will-change: transform;
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  &.swiping {
+    animation: none;
+    transform: translateX(var(--swipe-offset, 0));
+  }
+
+  &:hover {
+    .btn-delete {
+      opacity: 1 !important;
+    }
+  }
+}
+
+// Swipe animation
+@keyframes swipeLeft {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+// Custom button variants
+.btn-pink {
+  @include button-variant(
+    #ff69b4,  // background
+    #ff69b4,  // border
+    #fff,     // color
+    #ff1493,  // hover background
+    #ff1493,  // hover border
+    #fff      // hover color
+  );
+}
+
+// Ensure swipe works on all devices
+@media (hover: none) {
+  .employee-card {
+    touch-action: pan-x;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
