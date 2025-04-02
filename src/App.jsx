@@ -142,7 +142,7 @@ function App() {
                     />
                   </InputGroup>
                   <Button
-                    variant={employee.gender === 'male' ? 'primary' : 'danger'}
+                    variant={employee.gender === 'male' ? 'primary' : 'pink'}
                     onClick={() => toggleGender(employee.id)}
                     style={{ width: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                   >

@@ -185,3 +185,15 @@ button:focus-visible {
   animation: none;
   transform: translateX(var(--swipe-offset, 0));
 }
+
+.btn-pink {
+  background-color: #ff69b4 !important;
+  border-color: #ff69b4 !important;
+  color: white !important;
+}
+
+.btn-pink:hover {
+  background-color: #ff1493 !important;
+  border-color: #ff1493 !important;
+  color: white !important;
+}
