@@ -110,4 +110,74 @@ button:focus-visible {
 
 .card-body {
   padding: 1rem;
+  position: relative;
+}
+
+.employee-card {
+  position: relative;
+  touch-action: pan-x;
+  will-change: transform;
+  cursor: grab;
+}
+
+.employee-card:active {
+  cursor: grabbing;
+}
+
+.delete-button {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  z-index: 1;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  background-color: white;
+  border: none;
+}
+
+.delete-button:hover {
+  background-color: #f8f9fa;
+}
+
+.delete-button i {
+  font-size: 0.8rem;
+  color: #dc3545;
+}
+
+@media (hover: hover) {
+  .employee-card:hover .delete-button {
+    opacity: 1;
+  }
+}
+
+/* Hide delete button on touch devices */
+@media (hover: none) {
+  .delete-button {
+    display: none;
+  }
+}
+
+/* Add swipe animation */
+@keyframes swipeLeft {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+.employee-card.swiping {
+  animation: none;
+  transform: translateX(var(--swipe-offset, 0));
 }
