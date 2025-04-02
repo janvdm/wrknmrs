@@ -15,7 +15,7 @@ function App() {
     const newEmployee = {
       id: Date.now(),
       name: 'New Employee',
-      salary: 0,
+      salary: '0',
       gender: 'male'
     }
     setEmployees([...employees, newEmployee])
@@ -61,8 +61,9 @@ function App() {
     touchEnd.current = e.targetTouches[0].clientX;
     const diff = touchStart.current - touchEnd.current;
 
-    // Limit the swipe offset to 100px
-    const newOffset = Math.min(Math.max(diff, 0), 100);
+    // Limit the swipe offset to 50% of the card width
+    const cardWidth = e.currentTarget.offsetWidth;
+    const newOffset = Math.min(Math.max(diff, 0), cardWidth * 0.5);
     setSwipeOffset(newOffset);
     e.preventDefault(); // Prevent scrolling while swiping
   };
@@ -70,9 +71,13 @@ function App() {
   const handleTouchEnd = (id) => {
     if (swipingId !== id) return;
 
-    if (swipeOffset > 50) {
+    const cardWidth = document.querySelector(`[data-employee-id="${id}"]`).offsetWidth;
+    if (swipeOffset > cardWidth * 0.25) {
+      // Animate to full width and remove immediately
+      setSwipeOffset(cardWidth);
       removeEmployee(id);
     } else {
+      // Animate back to start
       setSwipeOffset(0);
     }
     setSwipingId(null);
@@ -106,7 +111,7 @@ function App() {
   const handleSalaryBlur = (e, id) => {
     const value = e.target.value.replace(/[^0-9]/g, '');
     if (value) {
-      const formattedValue = new Intl.NumberFormat('nl-NL', {
+      const formattedValue = new Intl.NumberFormat('de-DE', {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
       }).format(value);
@@ -130,13 +135,15 @@ function App() {
         {employees.map(employee => (
           <div
             key={employee.id}
+            data-employee-id={employee.id}
             onTouchStart={(e) => handleTouchStart(e, employee.id)}
             onTouchMove={(e) => handleTouchMove(e, employee.id)}
             onTouchEnd={() => handleTouchEnd(employee.id)}
             className={`card employee-card ${swipingId === employee.id ? 'swiping' : ''}`}
             style={{
               transform: `translateX(${swipingId === employee.id ? -swipeOffset : 0}px)`,
-              transition: swipingId === employee.id ? 'none' : 'transform 0.3s ease-out'
+              transition: 'transform 0.2s ease-out',
+              opacity: swipingId === employee.id ? (1 - (swipeOffset / (document.querySelector(`[data-employee-id="${employee.id}"]`)?.offsetWidth || 1)) * 2) : 1
             }}
           >
             <button
@@ -163,7 +170,7 @@ function App() {
                 <div className="input-group" style={{ width: 'calc(45% - 0.5rem)' }}>
                   <span className="input-group-text">€</span>
                   <input
-                    type="number"
+                    type="text"
                     inputMode="numeric"
                     pattern="[0-9]*"
                     className="form-control"
