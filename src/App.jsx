@@ -117,7 +117,7 @@ function App() {
   const ages = generateAges()
 
   return (
-    <div className="container py-4">
+    <div className="container py-2 px-1 p-lg-3">
       <div className="d-none d-xl-flex justify-content-center mb-4">
         <button
           className="btn btn-primary"
@@ -151,7 +151,7 @@ function App() {
             >
               <i className="fas fa-times small"></i>
             </button>
-            <div className="card-body">
+            <div className="card-body p-2 p-lg-3">
               <div className="d-flex gap-2">
                 <button
                   className={`btn ${employee.gender === 'male' ? 'btn-primary' : 'btn-pink'}`}
@@ -166,7 +166,7 @@ function App() {
                   value={employee.name}
                   onChange={(e) => updateEmployee(employee.id, 'name', e.target.value)}
                   placeholder="Voornaam"
-                  style={{ width: 'calc(45% - 0.5rem)' }}
+                  style={{ width: 'calc(35% - 0.5rem)' }}
                   onFocus={() => handleFocus(employee.id)}
                   onBlur={() => handleBlur(employee.id)}
                   ref={(el) => (nameRefs.current[employee.id] = el)}
@@ -175,7 +175,7 @@ function App() {
                   className="form-select"
                   value={employee.age}
                   onChange={(e) => updateEmployee(employee.id, 'age', e.target.value)}
-                  style={{ width: 'calc(25% - 0.5rem)' }}
+                  style={{ width: 'calc(30% - 0.5rem)' }}
                 >
                   {ages.map(age => (
                     <option key={age} value={age}>
@@ -187,7 +187,7 @@ function App() {
                   className="form-select"
                   value={employee.salary}
                   onChange={(e) => updateEmployee(employee.id, 'salary', e.target.value)}
-                  style={{ width: 'calc(25% - 0.5rem)' }}
+                  style={{ width: 'calc(30% - 0.5rem)' }}
                 >
                   {salaryRanges.map((range, index) => (
                     <option key={index} value={range.value}>
