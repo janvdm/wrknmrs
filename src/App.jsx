@@ -8,14 +8,36 @@ function App() {
   const touchEnd = useRef(null)
   const [swipingId, setSwipingId] = useState(null)
   const [swipeOffset, setSwipeOffset] = useState(0)
-  const salaryRefs = useRef({})
   const nameRefs = useRef({})
+
+  const generateAges = () => {
+    const ages = []
+    // Generate ages from 18 to 67 (typical working age)
+    for (let age = 18; age <= 67; age++) {
+      ages.push(age.toString())
+    }
+    return ages
+  }
+
+  const generateSalaryRanges = () => {
+    const ranges = []
+    ranges.push({ value: '< 5.000', display: '< 5k' })
+    for (let i = 5000; i <= 200000; i += 5000) {
+      ranges.push({
+        value: new Intl.NumberFormat('de-DE').format(i),
+        display: `${i/1000}k`
+      })
+    }
+    ranges.push({ value: '> 200.000', display: '> 200k' })
+    return ranges
+  }
 
   const addEmployee = () => {
     const newEmployee = {
       id: Date.now(),
-      name: 'New Employee',
-      salary: '0',
+      name: 'Voornaam',
+      age: '35', // Default to 35 years old
+      salary: '35.000',
       gender: 'male'
     }
     setEmployees([...employees, newEmployee])
@@ -28,12 +50,6 @@ function App() {
     setEmployees(employees.map(emp =>
       emp.id === id ? { ...emp, [field]: value } : emp
     ))
-  }
-
-  const handleSalaryChange = (id, value) => {
-    // Only allow digits and limit to 6 characters
-    const digitsOnly = value.replace(/[^0-9]/g, '').slice(0, 6)
-    updateEmployee(id, 'salary', digitsOnly)
   }
 
   const removeEmployee = (id) => {
@@ -85,7 +101,7 @@ function App() {
 
   const handleFocus = (id) => {
     const employee = employees.find(emp => emp.id === id)
-    if (employee.name === 'New Employee') {
+    if (employee.name === 'Voornaam') {
       updateEmployee(id, 'name', '')
     }
   }
@@ -93,31 +109,12 @@ function App() {
   const handleBlur = (id) => {
     const employee = employees.find(emp => emp.id === id)
     if (employee.name === '') {
-      updateEmployee(id, 'name', 'New Employee')
+      updateEmployee(id, 'name', 'Voornaam')
     }
   }
 
-  const handleSalaryFocus = (id) => {
-    const employee = employees.find(emp => emp.id === id);
-    const input = salaryRefs.current[id];
-    // Remove all non-digit characters when focusing
-    const numericValue = employee.salary.replace(/[^0-9]/g, '');
-    updateEmployee(id, 'salary', numericValue);
-    setTimeout(() => {
-      input.select();
-    }, 0);
-  };
-
-  const handleSalaryBlur = (e, id) => {
-    const value = e.target.value.replace(/[^0-9]/g, '');
-    if (value) {
-      const formattedValue = new Intl.NumberFormat('de-DE', {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-      }).format(value);
-      updateEmployee(id, 'salary', formattedValue);
-    }
-  };
+  const salaryRanges = generateSalaryRanges()
+  const ages = generateAges()
 
   return (
     <div className="container py-4">
@@ -156,32 +153,6 @@ function App() {
             </button>
             <div className="card-body">
               <div className="d-flex gap-2">
-                <input
-                  type="text"
-                  className="form-control"
-                  value={employee.name}
-                  onChange={(e) => updateEmployee(employee.id, 'name', e.target.value)}
-                  placeholder="Name"
-                  style={{ width: 'calc(45% - 0.5rem)' }}
-                  onFocus={() => handleFocus(employee.id)}
-                  onBlur={() => handleBlur(employee.id)}
-                  ref={(el) => (nameRefs.current[employee.id] = el)}
-                />
-                <div className="input-group" style={{ width: 'calc(45% - 0.5rem)' }}>
-                  <span className="input-group-text">€</span>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    className="form-control"
-                    value={employee.salary}
-                    onChange={(e) => handleSalaryChange(employee.id, e.target.value)}
-                    placeholder="Salary"
-                    ref={(el) => (salaryRefs.current[employee.id] = el)}
-                    onFocus={() => handleSalaryFocus(employee.id)}
-                    onBlur={(e) => handleSalaryBlur(e, employee.id)}
-                  />
-                </div>
                 <button
                   className={`btn ${employee.gender === 'male' ? 'btn-primary' : 'btn-pink'}`}
                   onClick={() => toggleGender(employee.id)}
@@ -189,6 +160,41 @@ function App() {
                 >
                   <i className={`fas fa-${employee.gender === 'male' ? 'mars' : 'venus'}`}></i>
                 </button>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={employee.name}
+                  onChange={(e) => updateEmployee(employee.id, 'name', e.target.value)}
+                  placeholder="Voornaam"
+                  style={{ width: 'calc(45% - 0.5rem)' }}
+                  onFocus={() => handleFocus(employee.id)}
+                  onBlur={() => handleBlur(employee.id)}
+                  ref={(el) => (nameRefs.current[employee.id] = el)}
+                />
+                <select
+                  className="form-select"
+                  value={employee.age}
+                  onChange={(e) => updateEmployee(employee.id, 'age', e.target.value)}
+                  style={{ width: 'calc(25% - 0.5rem)' }}
+                >
+                  {ages.map(age => (
+                    <option key={age} value={age}>
+                      {age}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  className="form-select"
+                  value={employee.salary}
+                  onChange={(e) => updateEmployee(employee.id, 'salary', e.target.value)}
+                  style={{ width: 'calc(25% - 0.5rem)' }}
+                >
+                  {salaryRanges.map((range, index) => (
+                    <option key={index} value={range.value}>
+                      {range.display}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
