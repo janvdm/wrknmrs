@@ -58,12 +58,6 @@ function App() {
     setSwipeOffset(0)
   }
 
-  const toggleGender = (id) => {
-    setEmployees(employees.map(emp =>
-      emp.id === id ? { ...emp, gender: emp.gender === 'male' ? 'female' : 'male' } : emp
-    ))
-  }
-
   const handleTouchStart = (e, id) => {
     touchStart.current = e.targetTouches[0].clientX;
     setSwipingId(id);
@@ -136,7 +130,7 @@ function App() {
             onTouchStart={(e) => handleTouchStart(e, employee.id)}
             onTouchMove={(e) => handleTouchMove(e, employee.id)}
             onTouchEnd={() => handleTouchEnd(employee.id)}
-            className={`card employee-card ${swipingId === employee.id ? 'swiping' : ''}`}
+            className={`card employee-card border-0 bg-light ${swipingId === employee.id ? 'swiping' : ''}`}
             style={{
               transform: `translateX(${swipingId === employee.id ? -swipeOffset : 0}px)`,
               transition: 'transform 0.2s ease-out',
@@ -151,15 +145,43 @@ function App() {
             >
               <i className="fas fa-times small"></i>
             </button>
-            <div className="card-body p-2 p-lg-3">
+            <div className="card-body p-2">
               <div className="d-flex gap-2">
-                <button
-                  className={`btn ${employee.gender === 'male' ? 'btn-primary' : 'btn-pink'}`}
-                  onClick={() => toggleGender(employee.id)}
-                  style={{ width: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                >
-                  <i className={`fas fa-${employee.gender === 'male' ? 'mars' : 'venus'}`}></i>
-                </button>
+                <div className="btn-group cursor-pointer " role="group" aria-label="Gender selection">
+                  <input
+                    type="radio"
+                    className="btn-check"
+                    name={`gender-${employee.id}`}
+                    id={`male-${employee.id}`}
+                    checked={employee.gender === 'male'}
+                    onChange={() => updateEmployee(employee.id, 'gender', 'male')}
+                    autoComplete="off"
+                  />
+                  <label
+                    className="btn btn-outline-primary fa-sm cursor-pointer"
+                    htmlFor={`male-${employee.id}`}
+                    style={{ width: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    <i className="fas fa-mars cursor-pointer"></i>
+                  </label>
+
+                  <input
+                    type="radio"
+                    className="btn-check"
+                    name={`gender-${employee.id}`}
+                    id={`female-${employee.id}`}
+                    checked={employee.gender === 'female'}
+                    onChange={() => updateEmployee(employee.id, 'gender', 'female')}
+                    autoComplete="off"
+                  />
+                  <label
+                    className="btn btn-outline-pink fa-sm cursor-pointer"
+                    htmlFor={`female-${employee.id}`}
+                    style={{ width: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    <i className="fas fa-venus cursor-pointer"></i>
+                  </label>
+                </div>
                 <input
                   type="text"
                   className="form-control"

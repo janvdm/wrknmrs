@@ -76,10 +76,24 @@
   );
 }
 
+.btn-outline-pink {
+  @include button-outline-variant(
+    #ff69b4,  // color
+    #fff,     // color-hover
+    #ff69b4,  // active-background
+    #ff69b4,  // active-border
+    #fff      // active-color
+  );
+}
+
 // Ensure swipe works on all devices
 @media (hover: none) {
   .employee-card {
     touch-action: pan-x;
     -webkit-tap-highlight-color: transparent;
   }
+}
+
+.cursor-pointer {
+  cursor: pointer !important;
 }
